@@ -1,0 +1,52 @@
+# Build Folders
+bin/
+obj/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+*.generated.cs
+
+# Packages
+*.nupkg
+*.snupkg
+# NuGet Packages Directory
+packages/
+# Uncomment if necessary (NuGet v3)
+#*.nuget/packages/
+
+# Logs
+*.log
+
+# VS Code directories
+.vscode/
+
+# Visual Studio Directories
+.vs/
+
+# Rider directories
+.idea/
+
+# ReSharper directories
+_ReSharper*/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]ppPackages/
+[Ll]og/
+
+# Publish
+*.publishsettings
+
+# Azure Pipelines
+.azure-pipelines/
+
+# Add others depending on your needs
