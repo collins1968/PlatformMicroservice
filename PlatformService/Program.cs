@@ -13,8 +13,16 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
+    if (builder.Environment.IsProduction())
+    {
+        Console.WriteLine("--> Using SQL Server");
+        options.UseSqlServer(builder.Configuration.GetConnectionString("PlatformsConnection"));
+    }
+    else
+    {
+    Console.WriteLine("--> Using InMem Database");
     options.UseInMemoryDatabase("InMem");
-    //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }
 });
 
 builder.Services.AddSwaggerGen(c =>
@@ -38,6 +46,6 @@ app.UseRouting();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-PrepDb.PrepPopulation(app);
+PrepDb.PrepPopulation(app, builder.Environment.IsProduction());
 app.Run();
 
