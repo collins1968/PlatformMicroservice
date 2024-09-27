@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PlatformService.AsyncDataServices;
 using PlatformService.Data;
 using PlatformService.Dtos;
 using PlatformService.Models;
@@ -15,11 +16,14 @@ namespace PlatformService.Controllers
         private readonly IPlatformRepo _repository;
         private readonly IMapper _mapper;
         private readonly ICommandDataClient _commandData;
-        public PlatformController(IPlatformRepo repository, IMapper mapper, ICommandDataClient commandData)
+        private readonly IMessageBusClient _messageBusClient;
+
+        public PlatformController(IPlatformRepo repository, IMapper mapper, ICommandDataClient commandData, IMessageBusClient messageBusClient)
         {
             _repository = repository;
             _mapper = mapper;
             _commandData = commandData;
+            _messageBusClient = messageBusClient;
         }
 
         [HttpGet]
@@ -49,6 +53,8 @@ namespace PlatformService.Controllers
 
             var platformReadDto = _mapper.Map<PlatformReadDto>(createdPlatform);
 
+
+            //send sync message
             try
             {
                 await _commandData.SendPlatformToCommand(platformReadDto);
@@ -56,6 +62,19 @@ namespace PlatformService.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"--> Could not send synchronously: {ex.Message}");
+            }
+
+            //send async message
+            try
+            {
+                var platformPublishDto = _mapper.Map<PlatformPublish>(platformReadDto);
+                platformPublishDto.Event = "Platform_Published";
+                _messageBusClient.PublishNewPlatform(platformPublishDto);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"--> Could not send assynchronously: {ex.Message}");
             }
             return Ok(platformReadDto);
         }
